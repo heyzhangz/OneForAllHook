@@ -12,6 +12,8 @@ an simple tools to hook class methods
 ​	编译： `frida-compile -o _agent.js index.ts`
 
 ​	如果没有安装frida-compile,要先安装	`npm install frida-compile -g`
-​	更方便的是直接开个新shell直接监控变化自动编译 `npm run watch`，编译完的文件名是`_agent.js`，剩下的和原始Frida使用方式就一样了。
+
+​	更方便的是直接开个新shell直接监控变化自动编译 `npm run watch`，编译完的文件名是`_agent.js`，剩下的和原始Frida使用方式就一样了。	
+
 ​	提供一个简单的注入python脚本`hook_start.py`
 ​    `python3 hook_start.py com.example.package`

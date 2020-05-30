@@ -18,11 +18,27 @@ def printError(message):
     formatStackInfo(message)
     print(json.dumps(message, indent=4))
 
-        
-
+def save_message(package_name, message):
+    path = os.path.join('log', package_name + '.json')
+    if not os.path.exists(path):
+        with open(path, 'w') as f:
+            f.write(message + '\n')
+    else:
+        with open(path, 'a+') as f:
+            f.write(message + '\n')
+    # if os.path.exists(path):
+    #     with open(path) as f:
+    #         log = json.load(f)
+    # else:
+    #     log = []
+    # trace = json.loads(message)
+    # log.append(trace)
+    # with open(path, 'w') as f:
+    #     json.dump(log, f, indent=4)
 def on_message(message, data):
     if message['type'] == 'send':
-        print("[*] {0}".format(message['payload']))
+        save_message(package_name, message['payload'])
+        # print("[*] {0}".format(message['payload']))
     else:
         printError(message)
         
