@@ -84,7 +84,6 @@ export namespace hooking {
                 );
                 let ts = new Date().getTime();
                 let report : any= {};
-                report['timestamp'] = ts;
                 report['callee'] = clazz + '.' + m.methodName;
                 report['argTypes'] = calleeArgTypes.join(", ")
                 if (trace_flag) {
