@@ -81,7 +81,7 @@ class CallerHook:
             if 'backtrace' in report.keys():
                 self.class_set = self.get_caller_class(report['backtrace'], 5)
                 print(self.class_set)
-            report['timestamp'] = round(time.time() * 100)
+            report['timestamp'] = round(time.time() * 1000)
             self.save_message(json.dumps(report))
             # print("[*] {0}".format(message['payload']))
         else:
