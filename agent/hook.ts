@@ -58,7 +58,7 @@ export namespace hooking {
         });
     }
 
-    export function hook_target_methods(clazz: string, method_name: string, trace_flag: boolean) {
+    export function hook_target_methods(clazz: string, method_name: string, trace_flag: boolean, arg_val: boolean) {
       let clazzInstance = Java.use(clazz);
         const throwable: Throwable = Java.use("java.lang.Throwable");
         const uniqueMethods: string[] = clazzInstance.class.getDeclaredMethods().map((method : any) => {
@@ -88,6 +88,9 @@ export namespace hooking {
                 report['argTypes'] = calleeArgTypes.join(", ")
                 if (trace_flag) {
                   report['backtrace'] = throwable.$new().getStackTrace().map((trace_element:any) => trace_element.toString() + "\n\t").join("")
+                }
+                if (arg_val) {
+                  report['arg_val'] = arguments
                 }
                 send(JSON.stringify(report, null));
                 // actually run the intended method
