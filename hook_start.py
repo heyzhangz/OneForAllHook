@@ -88,6 +88,11 @@ class CallerHook:
             printError(message)
 
     def start_hook(self, script_path):
+        """
+        直接hook进程
+        :param script_path:
+        :return:
+        """
         try:
             signal.signal(signal.SIGINT, quit)
             signal.signal(signal.SIGTERM, quit)
@@ -107,6 +112,11 @@ class CallerHook:
         pass
 
     def run_and_start_hook(self, script_path):
+        """
+        启动APP进程并hook
+        :param script_path:
+        :return:
+        """
         try:
             signal.signal(signal.SIGINT, quit)
             signal.signal(signal.SIGTERM, quit)
