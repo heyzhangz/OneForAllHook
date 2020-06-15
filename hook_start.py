@@ -87,13 +87,14 @@ class CallerHook:
         else:
             printError(message)
 
-    def start_hook_API(self, script_path):
+    def start_hook(self, script_path):
         try:
             signal.signal(signal.SIGINT, quit)
             signal.signal(signal.SIGTERM, quit)
             # 加载Frida
             with open(script_path) as f:
                 jscode = f.read()
+
             self.process = frida.get_usb_device().attach(self.package_name)
             self.script = self.process.create_script(jscode)
             self.script.on('message', self.on_message)
@@ -105,7 +106,30 @@ class CallerHook:
             print(e.args)
         pass
 
-    def stop_hook_API(self):
+    def run_and_start_hook(self, script_path):
+        try:
+            signal.signal(signal.SIGINT, quit)
+            signal.signal(signal.SIGTERM, quit)
+            # 加载Frida
+            with open(script_path) as f:
+                jscode = f.read()
+
+            device = frida.get_usb_device()
+            pid = device.spawn([self.package_name])
+            self.process = device.attach(pid)
+            self.script = self.process.create_script(jscode)
+            self.script.on('message', self.on_message)
+            print('[*] Running App')
+            self.script.load()
+            # resume()一定要放在后面，不然hook不到onCreate
+            device.resume(pid)
+
+            # sys.stdin.read()
+        except Exception as e:
+            print(e.args)
+        pass
+
+    def stop_hook(self):
         print("[*] stop hook" + self.package_name)
         self.script.off('message', self.on_message)
         # self.process.off()
@@ -117,8 +141,8 @@ class CallerHook:
 if __name__ == "__main__":
     package_name = sys.argv[1]
     ch = CallerHook(package_name, os.path.join('log'))
-    ch.start_hook_API(os.path.join('_agent.js'))
+    ch.start_hook(os.path.join('_agent.js'))
     sys.stdin.read()
-    ch.stop_hook_API()
+    ch.stop_hook()
 
     pass
