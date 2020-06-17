@@ -99,7 +99,6 @@ class CallerHook:
             # 加载Frida
             with open(script_path) as f:
                 jscode = f.read()
-
             self.process = frida.get_usb_device().attach(self.package_name)
             self.script = self.process.create_script(jscode)
             self.script.on('message', self.on_message)

@@ -1,7 +1,44 @@
 import { colors as c } from "../lib/color";
 import { ArrayMap, JavaClass, Throwable } from "../lib/type";
 export namespace hooking {
-    export function hook_class_methods(clazz: string, trace_flag: boolean) {
+  export function get_class_methods(clazz: string) {
+    let clazzInstance = Java.use(clazz);
+    let methodsOverload: Array<string> = new Array<string>();
+    const uniqueMethods: string[] = clazzInstance.class.getDeclaredMethods().map((method : any) => {
+      // perform a cleanup of the method. An example after toGenericString() would be:
+      // public void android.widget.ScrollView.draw(android.graphics.Canvas) throws Exception
+      // public final rx.c.b<java.lang.Throwable> com.apple.android.music.icloud.a.a(rx.c.b<java.lang.Throwable>)
+          let m: string = method.toGenericString();
+      // Remove generics from the method
+      while (m.includes("<")) { m = m.replace(/<.*?>/g, ""); }
+
+      // remove any "Throws" the method may have
+      if (m.indexOf(" throws ") !== -1) { m = m.substring(0, m.indexOf(" throws ")); }
+
+      // remove scope and return type declarations (aka: first two words)
+      // remove the class name
+      // remove the signature and return
+      m = m.slice(m.lastIndexOf(" "));
+      m = m.replace(` ${clazz}.`, "");
+
+      return m.split("(")[0];
+
+    }).filter((value:any, index:any, self:any) => {
+      return self.indexOf(value) === index;
+    });
+    uniqueMethods.forEach((method) => {
+      clazzInstance[method].overloads.forEach((m: any) => {
+        // get the argument types for this overload
+        const calleeArgTypes: string[] = m.argumentTypes.map((arg:any) => arg.className);
+        let methodSignature = m.methodName + '(' + calleeArgTypes.join(',') + ')';
+        methodsOverload.push(methodSignature);
+      });
+    });
+    return methodsOverload;
+  }
+
+  export function hook_class_methods(clazz: string, trace_flag: boolean) {
+      try {
         let clazzInstance = Java.use(clazz);
         const throwable: Throwable = Java.use("java.lang.Throwable");
         const uniqueMethods: string[] = clazzInstance.class.getDeclaredMethods().map((method : any) => {
@@ -55,10 +92,15 @@ export namespace hooking {
             };
           });
         });
-    }
+      }catch(e) {
 
-    export function hook_target_methods(clazz: string, method_name: string, trace_flag: boolean, arg_val: boolean) {
-      let clazzInstance = Java.use(clazz);
+      }
+      
+  }
+
+  export function hook_target_methods(clazz: string, method_name: string, trace_flag: boolean, arg_val: boolean) {
+      try {
+        let clazzInstance = Java.use(clazz);
         const throwable: Throwable = Java.use("java.lang.Throwable");
         const uniqueMethods: string[] = clazzInstance.class.getDeclaredMethods().map((method : any) => {
             let m: string = method.toGenericString();
@@ -97,7 +139,9 @@ export namespace hooking {
               };
             });
           }
-          
         });
-    }
+      }catch(e) {
+
+      }
+  }
 }

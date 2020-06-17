@@ -1,4 +1,4 @@
-import {cameraReleatedHook, locationReleatedHook, audioReleatedHook, life_cycle_hook, permission_request_hook} from './scenario'
+import {cameraReleatedHook, locationReleatedHook, audioReleatedHook, life_cycle_hook, permission_request_hook, google_ad_hook} from './scenario'
 
 Java.perform(function() {
 	if(Java.available) {
@@ -6,7 +6,8 @@ Java.perform(function() {
     locationReleatedHook(false);
     // cameraReleatedHook(true);
     // audioReleatedHook(false);
-    life_cycle_hook(false);
-    permission_request_hook(false);
+    // life_cycle_hook(false);
+    // permission_request_hook(false);
+    // google_ad_hook();
 	}
 })

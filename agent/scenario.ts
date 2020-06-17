@@ -17,16 +17,16 @@ export function cameraReleatedHook(trace_flag: boolean) {
 export function locationReleatedHook(trace_flag: boolean) {
     let target_classes:string[];
     target_classes = [
-      'android.location.ILocationManager',
-      'android.location.ILocationManager$Stub',
-      'android.location.ILocationManager$Stub$Proxy',
-      'android.location.LocationManager',
-      'android.location.LocationManager$GnssStatusListenerTransport$1',
-      'android.location.LocationManager$GnssStatusListenerTransport$2',
-      'android.location.LocationManager$GnssStatusListenerTransport$Nmea',
-      'android.location.LocationManager$ListenerTransport',
-      'android.location.LocationManager$ListenerTransport$1',
-      'android.location.LocationManager$ListenerTransport$2'
+      "android.location.GpsStatus$SatelliteIterator",
+      "android.location.IGnssStatusListener$Stub",
+      "android.location.GpsStatus$SatelliteIterator",
+      "android.location.LocationManager$GnssStatusListenerTransport$GnssHandler",
+      "android.location.LocationManager$GnssStatusListenerTransport",
+      "android.location.GpsSatellite",
+      "android.location.LocationManager",
+      "android.location.GpsStatus",
+      "android.location.GpsStatus$1",
+      "android.location.Location"
     ]
     target_classes.forEach((clazz) => {
       h.hook_class_methods(clazz, trace_flag);
@@ -62,4 +62,15 @@ export function life_cycle_hook(trace_flag: boolean) {
 export function permission_request_hook(trace_flag: boolean) {
   h.hook_target_methods('android.app.Activity', 'requestPermissions', trace_flag, true);
   h.hook_target_methods('android.app.Fragment', 'requestPermissions', trace_flag, true);
+}
+
+export function google_ad_hook() {
+  let target_class = 'com.google.android.gms.ads.AdRequest$Builder';
+  let methods = h.get_class_methods(target_class);
+  console.log(methods);
+  methods.forEach(m => {
+    if (m.endsWith('(android.location.Location)')) {
+      h.hook_target_methods(target_class, m.replace('(android.location.Location)', ''), false, false);
+    }
+  })
 }
