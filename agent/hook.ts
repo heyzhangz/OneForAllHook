@@ -1,7 +1,9 @@
 import { colors as c } from "../lib/color";
 import { ArrayMap, JavaClass, Throwable } from "../lib/type";
 export namespace hooking {
-  export function get_class_methods(clazz: string) {
+
+  export function get_class_methods(clazz: string, rettype: boolean) {
+    try {
     let clazzInstance = Java.use(clazz);
     let methodsOverload: Array<string> = new Array<string>();
     const uniqueMethods: string[] = clazzInstance.class.getDeclaredMethods().map((method : any) => {
@@ -18,23 +20,37 @@ export namespace hooking {
       // remove scope and return type declarations (aka: first two words)
       // remove the class name
       // remove the signature and return
+      let ret: string = ""
+      if (rettype) {
+        let lastspaceindex =  m.lastIndexOf(" ");
+        ret = m.slice(m.lastIndexOf(" ", lastspaceindex - 1) + 1, lastspaceindex + 1);
+      }
       m = m.slice(m.lastIndexOf(" "));
       m = m.replace(` ${clazz}.`, "");
 
-      return m.split("(")[0];
+      return ret + m.split("(")[0];
 
     }).filter((value:any, index:any, self:any) => {
       return self.indexOf(value) === index;
     });
     uniqueMethods.forEach((method) => {
+      let ret: string = "";
+      if (rettype) {
+        let splits = method.split(" ");
+        method = splits[1];
+        ret = splits[0] + " ";
+      }
       clazzInstance[method].overloads.forEach((m: any) => {
         // get the argument types for this overload
         const calleeArgTypes: string[] = m.argumentTypes.map((arg:any) => arg.className);
         let methodSignature = m.methodName + '(' + calleeArgTypes.join(',') + ')';
-        methodsOverload.push(methodSignature);
+        methodsOverload.push(ret + methodSignature);
       });
     });
     return methodsOverload;
+    } catch(e) {
+        return new Array<string>();
+    }
   }
 
   export function hook_class_methods(clazz: string, trace_flag: boolean) {
@@ -68,6 +84,7 @@ export namespace hooking {
           clazzInstance[method].overloads.forEach((m: any) => {
             // get the argument types for this overload
             const calleeArgTypes: string[] = m.argumentTypes.map((arg:any) => arg.className);
+            const calleeReturnType: string = m.returnType.className;
             console.log(`Hooking ${c.green(clazz)}.${c.greenBright(method)}(${c.red(calleeArgTypes.join(", "))})`);
     
             // replace the implementation of this method
@@ -83,6 +100,7 @@ export namespace hooking {
               let report : any= {};
               report['callee'] = clazz + '.' + m.methodName;
               report['argTypes'] = calleeArgTypes.join(", ")
+              report['retType'] = calleeReturnType
               if (trace_flag) {
                 report['backtrace'] = throwable.$new().getStackTrace().map((trace_element:any) => trace_element.toString() + "\n\t").join("")
               }
@@ -98,7 +116,7 @@ export namespace hooking {
       
   }
 
-  export function hook_target_methods(clazz: string, method_name: string, trace_flag: boolean, arg_val: boolean) {
+  export function hook_target_methods(clazz: string, method_name: string, trace_flag: boolean, arg_val: boolean, arg?: string[]) {
       try {
         let clazzInstance = Java.use(clazz);
         const throwable: Throwable = Java.use("java.lang.Throwable");
@@ -112,12 +130,13 @@ export namespace hooking {
           }).filter((value:any, index:any, self:any) => {
             return self.indexOf(value) === index;
           });
-    
         uniqueMethods.forEach((method) => {
           if (method == method_name) {
             clazzInstance[method].overloads.forEach((m: any) => {
               // get the argument types for this overload
               const calleeArgTypes: string[] = m.argumentTypes.map((arg:any) => arg.className);
+              const calleeReturnType: string = m.returnType.className;
+              if (arg === undefined || calleeArgTypes.toString() === arg.toString()) {
               console.log(`Hooking ${c.green(clazz)}.${c.greenBright(method)}(${c.red(calleeArgTypes.join(", "))})`);
               m.implementation = function() {
                 console.log(
@@ -127,6 +146,7 @@ export namespace hooking {
                 let report : any= {};
                 report['callee'] = clazz + '.' + m.methodName;
                 report['argTypes'] = calleeArgTypes.join(", ")
+                report['retType'] = calleeReturnType
                 if (trace_flag) {
                   report['backtrace'] = throwable.$new().getStackTrace().map((trace_element:any) => trace_element.toString() + "\n\t").join("")
                 }
@@ -137,6 +157,7 @@ export namespace hooking {
                 // actually run the intended method
                 return m.apply(this, arguments);
               };
+              }
             });
           }
         });
