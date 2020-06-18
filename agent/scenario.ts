@@ -64,13 +64,43 @@ export function permission_request_hook(trace_flag: boolean) {
   h.hook_target_methods('android.app.Fragment', 'requestPermissions', trace_flag, true);
 }
 
-export function google_ad_hook() {
-  let target_class = 'com.google.android.gms.ads.AdRequest$Builder';
-  let methods = h.get_class_methods(target_class);
-  console.log(methods);
-  methods.forEach(m => {
-    if (m.endsWith('(android.location.Location)')) {
-      h.hook_target_methods(target_class, m.replace('(android.location.Location)', ''), false, false);
-    }
-  })
+// export function google_ad_hook() {
+//   let target_class = 'com.google.android.gms.ads.AdRequest$Builder';
+//   let methods = h.get_class_methods(target_class);
+//   console.log(methods);
+//   methods.forEach(m => {
+//     if (m.endsWith('(android.location.Location)')) {
+//       h.hook_target_methods(target_class, m.replace('(android.location.Location)', ''), false, false);
+//     }
+//   })
+// }
+
+export function ad_hook() {
+    let arg_target_classes = [
+        'com.google.android.gms.ads.AdRequest$Builder',
+        'com.mopub.common.AdUrlGenerator'
+    ]
+    arg_target_classes.forEach((clazz) => {
+        let methods = h.get_class_methods(clazz, false);
+        methods.forEach(m => {
+            if (m.endsWith('(android.location.Location)')) {
+                h.hook_target_methods(clazz, m.replace('(android.location.Location)', ''), false, false, ['android.location.Location']);
+            }
+        })
+    })
+
+    let ret_target_classes = [
+        'com.amazon.device.ads.AdLocation'
+    ]
+    ret_target_classes.forEach((clazz) => {
+        let methods = h.get_class_methods(clazz, true);
+        methods.forEach(m => {
+            let splits = m.split(" ")
+            let method = splits[1]
+            let ret_arg = splits[0]
+            if (ret_arg == 'android.location.Location') {
+                h.hook_target_methods(clazz, method.split("(")[0], false, false);
+            }
+        })
+    })
 }
