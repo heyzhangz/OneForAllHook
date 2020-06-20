@@ -1,6 +1,7 @@
 import { hooking as h } from './hook';
 
-export function cameraReleatedHook(trace_flag: boolean) {
+
+export function cameraReleatedHook(trace_flag: boolean, arg_vals: boolean) {
     let target_classes:string[];
     target_classes = [
       'android.hardware.Camera', 
@@ -10,11 +11,11 @@ export function cameraReleatedHook(trace_flag: boolean) {
       'android.hardware.camera2.impl.CameraDeviceImpl'
     ]
     target_classes.forEach((clazz) => {
-      h.hook_class_methods(clazz, trace_flag);
+      h.hook_class_methods(clazz, trace_flag, arg_vals);
     });
 }
 
-export function locationReleatedHook(trace_flag: boolean) {
+export function locationReleatedHook(trace_flag: boolean, arg_vals: boolean) {
     let target_classes:string[];
     target_classes = [
       "android.location.GpsStatus$SatelliteIterator",
@@ -29,11 +30,11 @@ export function locationReleatedHook(trace_flag: boolean) {
       "android.location.Location"
     ]
     target_classes.forEach((clazz) => {
-      h.hook_class_methods(clazz, trace_flag);
+      h.hook_class_methods(clazz, trace_flag, arg_vals);
     })
 }
 
-export function audioReleatedHook(trace_flag: boolean) {
+export function audioReleatedHook(trace_flag: boolean, arg_vals: boolean) {
     let target_classes:string[];
     target_classes = [
       'android.media.MediaPlayer', 
@@ -42,38 +43,26 @@ export function audioReleatedHook(trace_flag: boolean) {
       'android.speech.tts.TextToSpeech'
     ]
     target_classes.forEach((clazz) => {
-      h.hook_class_methods(clazz, trace_flag);
+      h.hook_class_methods(clazz, trace_flag, arg_vals);
     })
 }
 
 
-export function life_cycle_hook(trace_flag: boolean) {
+export function life_cycle_hook(trace_flag: boolean, arg_vals: boolean) {
   let target_classes:string[];
   target_classes = [
     'android.app.Activity',
     'android.app.Service'
   ]
   target_classes.forEach((clazz) => {
-    h.hook_target_methods(clazz, 'onCreate', trace_flag, false);
-    // h.hook_class_methods(clazz, false);
+    h.hook_target_method(clazz, 'onCreate', '', '', trace_flag, arg_vals);
   })
 }
 
-export function permission_request_hook(trace_flag: boolean) {
-  h.hook_target_methods('android.app.Activity', 'requestPermissions', trace_flag, true);
-  h.hook_target_methods('android.app.Fragment', 'requestPermissions', trace_flag, true);
+export function permission_request_hook(trace_flag: boolean, arg_vals: boolean) {
+  h.hook_target_method('android.app.Activity', 'requestPermissions', '', '', trace_flag, arg_vals);
+  h.hook_target_method('android.app.Fragment', 'requestPermissions', '', '', trace_flag, arg_vals);
 }
-
-// export function google_ad_hook() {
-//   let target_class = 'com.google.android.gms.ads.AdRequest$Builder';
-//   let methods = h.get_class_methods(target_class);
-//   console.log(methods);
-//   methods.forEach(m => {
-//     if (m.endsWith('(android.location.Location)')) {
-//       h.hook_target_methods(target_class, m.replace('(android.location.Location)', ''), false, false);
-//     }
-//   })
-// }
 
 export function ad_hook() {
     let arg_target_classes = [
@@ -81,11 +70,9 @@ export function ad_hook() {
         'com.mopub.common.AdUrlGenerator'
     ]
     arg_target_classes.forEach((clazz) => {
-        let methods = h.get_class_methods(clazz, false);
+        let methods = h.get_class_method_names(clazz);
         methods.forEach(m => {
-            if (m.endsWith('(android.location.Location)')) {
-                h.hook_target_methods(clazz, m.replace('(android.location.Location)', ''), false, false, ['android.location.Location']);
-            }
+            h.hook_target_method(clazz, m, 'android.location.Location', '', true, false);
         })
     })
 
@@ -93,14 +80,13 @@ export function ad_hook() {
         'com.amazon.device.ads.AdLocation'
     ]
     ret_target_classes.forEach((clazz) => {
-        let methods = h.get_class_methods(clazz, true);
+        let methods = h.get_class_method_names(clazz);
         methods.forEach(m => {
-            let splits = m.split(" ")
-            let method = splits[1]
-            let ret_arg = splits[0]
-            if (ret_arg == 'android.location.Location') {
-                h.hook_target_methods(clazz, method.split("(")[0], false, false);
-            }
+            h.hook_target_method(clazz, m, '', 'android.location.Location', true, false);
         })
     })
+}
+
+export function test_func() {
+    h.hook_target_method('android.location.Location', 'distanceBetween', '', '', true, true);
 }

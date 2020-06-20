@@ -17,3 +17,29 @@ an simple tools to hook class methods
 
 ​	提供一个简单的注入python脚本`hook_start.py`
 ​    `python3 hook_start.py com.example.package`
+
+## Hook功能简介
+
+* Hook类下所有方法
+
+  `hook_class_methods(clazz: string, trace_flag: boolean, arg_val_flag: boolean)`
+
+  该方法会Hook类下所有方法包括所有重载，`trace_flag`代表是否记录调用栈，`arg_val_flag`代表是否记录参数值
+
+* Hook类中某个名字的方法
+
+  ```typescript
+  hook_target_method(
+  	clazz: string, method_name: string, 
+  	arg_types: string, return_types: string, 
+  	trace_flag: boolean, arg_val_flag: boolean)
+  ```
+
+  该方法可以制定Hook某个方法，并匹配参数类型和返回值类型，当传入为""时，不加匹配条件，否则按照参数输入匹配。
+
+  例如，匹配`com.google.android.gms.ads.AdRequest$Builder`中方法名为`aaaa`的参数类型为`android.location.Location`的方法，调用如
+
+  ```typescript
+  h.hook_target_method("com.google.android.gms.ads.AdRequest$Builde", "aaaa", 'android.location.Location', '', true, false);
+  ```
+

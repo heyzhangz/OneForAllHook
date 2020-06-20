@@ -78,9 +78,9 @@ class CallerHook:
     def on_message(self, message, data):
         if message['type'] == 'send':
             report = json.loads(message['payload'])
-            if 'backtrace' in report.keys():
-                self.class_set = self.get_caller_class(report['backtrace'], 5)
-                print(self.class_set)
+            # if 'backtrace' in report.keys():
+            #     self.class_set = self.get_caller_class(report['backtrace'], 5)
+            #     print(self.class_set)
             report['timestamp'] = round(time.time() * 1000)
             self.save_message(json.dumps(report))
             # print("[*] {0}".format(message['payload']))
@@ -100,7 +100,8 @@ class CallerHook:
             with open(script_path) as f:
                 jscode = f.read()
             self.process = frida.get_usb_device().attach(self.package_name)
-            self.script = self.process.create_script(jscode)
+            self.process.enable_debugger()
+            self.script = self.process.create_script(jscode, runtime="v8")
             self.script.on('message', self.on_message)
             print('[*] Running App')
             self.script.load()
