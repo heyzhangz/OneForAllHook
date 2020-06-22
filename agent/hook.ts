@@ -9,13 +9,17 @@ export namespace hooking {
                 clazz_instance = Java.use(clazz_instance);
             }
             let method_names: string[] = clazz_instance.class.getDeclaredMethods().map((method : any) => {
-                let m: string = method.toGenericString();
-                while (m.includes("<")) { m = m.replace(/<.*?>/g, ""); }
-                if (m.indexOf(" throws ") !== -1) { m = m.substring(0, m.indexOf(" throws ")); }
-                m = m.slice(m.lastIndexOf(" "));
-                m = m.replace(` ${clazz_instance.class.getName()}.`, "");
-                return m.split("(")[0];
+                // let m: string = method.toGenericString();
+                // while (m.includes("<")) { m = m.replace(/<.*?>/g, ""); }
+                // if (m.indexOf(" throws ") !== -1) { m = m.substring(0, m.indexOf(" throws ")); }
+                // m = m.slice(m.lastIndexOf(" "));
+                // m = m.replace(` ${clazz_instance.class.getName()}.`, "");
+                // return m.split("(")[0];
+                return method.getName();
+            }).filter((value:any, index:any, self:any) => {
+                return self.indexOf(value) === index;
             });
+
             return method_names;
         } catch(e) {
             return [];

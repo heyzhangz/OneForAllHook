@@ -65,26 +65,42 @@ export function permission_request_hook(trace_flag: boolean, arg_vals: boolean) 
 }
 
 export function ad_hook() {
-    let arg_target_classes = [
-        'com.google.android.gms.ads.AdRequest$Builder',
-        'com.mopub.common.AdUrlGenerator'
-    ]
-    arg_target_classes.forEach((clazz) => {
-        let methods = h.get_class_method_names(clazz);
-        methods.forEach(m => {
-            h.hook_target_method(clazz, m, 'android.location.Location', '', true, false);
-        })
+    let google_target_class = 'com.google.android.gms.ads.AdRequest$Builder'
+    h.get_class_method_names(google_target_class).forEach((method) => {
+        h.hook_target_method(google_target_class, method, 'android.location.Location', '', true, false)
     })
 
-    let ret_target_classes = [
-        'com.amazon.device.ads.AdLocation'
-    ]
-    ret_target_classes.forEach((clazz) => {
-        let methods = h.get_class_method_names(clazz);
-        methods.forEach(m => {
-            h.hook_target_method(clazz, m, '', 'android.location.Location', true, false);
-        })
+    // facebook 没找到地理位置接口
+    // let fb_target_class = ''
+
+    let mopub_target_class = 'com.mopub.common.AdUrlGenerator'
+    let methods = h.get_class_method_names(mopub_target_class)
+    methods.forEach((method) => {
+        h.hook_target_method(mopub_target_class, method, 'android.location.Location', 'void', true, false)
     })
+
+    let amazon_target_class = 'com.amazon.device.ads.AdLocation'
+    h.get_class_method_names(amazon_target_class).forEach((method) => {
+        h.hook_target_method(amazon_target_class, method, '', 'android.location.Location', true, false)
+    })
+
+    // flurry本身sdk就已经混淆了
+    // let flurry_target_class = ''
+
+    let inmobi_target_class = 'com.inmobi.sdk.InMobiSdk'
+    h.get_class_method_names(inmobi_target_class).forEach((method) => {
+        h.hook_target_method(inmobi_target_class, method, 'android.location.Location', '', true, false)
+        //setLocationWithCityStateCountry
+        h.hook_target_method(inmobi_target_class, method, 'java.lang.String,java.lang.String,java.lang.String', '', true, false)
+    })
+
+    let adcolony_target_class = 'com.adcolony.sdk'
+    h.get_class_method_names(adcolony_target_class).forEach((method) => {
+        h.hook_target_method(adcolony_target_class, method, 'android.location.Location', '', true, false)
+    })
+
+    // appLovin sdk类名混淆，并且本身用的好像是WebSettings的setGeolocationEnabled
+    // let appLovin_target_class = ''
 }
 
 export function test_func() {
