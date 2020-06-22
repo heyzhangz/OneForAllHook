@@ -78,6 +78,10 @@ export namespace hooking {
             clazz_instance[method_name].overloads.forEach((method: any) => {
                 let same_flag: boolean = true;
                 let args_string: string = method.argumentTypes.map((arg:any) => arg.className).join(',');
+                //空入参的target方法入参写 ‘void’
+                if (args_string == '') {
+                    args_string = 'void'
+                }
                 let return_string: string = method.returnType.className.toString();
                 if (arg_types != '' && arg_types != args_string) {
                     same_flag = false;
