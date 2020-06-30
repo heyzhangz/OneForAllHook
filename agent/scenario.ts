@@ -37,16 +37,61 @@ export function locationReleatedHook(trace_flag: boolean, arg_vals: boolean) {
 export function audioReleatedHook(trace_flag: boolean, arg_vals: boolean) {
     let target_classes:string[];
     target_classes = [
-      'android.media.MediaPlayer', 
+      'android.media.MediaPlayer',
+      'android.media.MediaPlayer$TimeProvider',
       'android.media.AudioTrack',
       'android.media.PlayerBase',
-      'android.speech.tts.TextToSpeech'
+      'android.speech.tts.TextToSpeech',
+      'android.media.SoundPool'
     ]
     target_classes.forEach((clazz) => {
       h.hook_class_methods(clazz, trace_flag, arg_vals);
     })
 }
 
+export function mircophoneReleatedHook(trace_flag: boolean, arg_vals: boolean) {
+    let target_classes:string[];
+    target_classes = [
+        'android.media.AudioRecord',
+        'android.media.AudioManager',
+        'android.media.MediaRecorder'
+    ]
+    target_classes.forEach((clazz) => {
+      h.hook_class_methods(clazz, trace_flag, arg_vals);
+    })
+}
+
+export function contactReleatedHook(trace_flag: boolean, arg_vals: boolean) {
+    let target_classes:string[];
+    target_classes = [
+        'android.provider.ContactsContract',
+        'android.provider.ContactsContract$RawContacts',
+        'android.content.ContentResolver',
+        // contact 和 sms 区分可能需要解析Uri
+        'android.net.Uri$StringUri',
+        'android.net.Uri'
+    ]
+    target_classes.forEach((clazz) => {
+      h.hook_class_methods(clazz, trace_flag, arg_vals);
+    })
+}
+
+export function smsReleatedHook(trace_flag: boolean, arg_vals: boolean) {
+    let target_classes:string[];
+    // android.provider.Telephony.Sms见的比较少，大多数直接查询
+    // 读取短信也是查询数据库和contact类似，但是sms数据库中有date信息，通常读取时会格式化时间戳，调用太频繁了
+    target_classes = [
+        // 'android.icu.text.SimpleDateFormat',
+        // 'java.text.SimpleDateFormat',
+        'android.provider.Telephony$Sms',
+        'android.provider.Telephony$Mms',
+        'android.provider.Telephony',
+        'android.telephony.TelephonyManager'
+    ]
+    target_classes.forEach((clazz) => {
+      h.hook_class_methods(clazz, trace_flag, arg_vals);
+    })
+}
 
 export function life_cycle_hook(trace_flag: boolean, arg_vals: boolean) {
   let target_classes:string[];
