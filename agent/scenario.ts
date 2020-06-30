@@ -68,12 +68,15 @@ export function contactReleatedHook(trace_flag: boolean, arg_vals: boolean) {
         'android.provider.ContactsContract$RawContacts',
         'android.content.ContentResolver',
         // contact 和 sms 区分可能需要解析Uri
-        'android.net.Uri$StringUri',
-        'android.net.Uri'
+        // 'android.net.Uri$StringUri',
+        // 'android.net.Uri'
     ]
     target_classes.forEach((clazz) => {
       h.hook_class_methods(clazz, trace_flag, arg_vals);
     })
+
+    // android.net.Uri 调用地点比较多，主要hook parse方法
+    h.hook_target_method('android.net.Uri', 'parse', '', '', trace_flag, arg_vals)
 }
 
 export function smsReleatedHook(trace_flag: boolean, arg_vals: boolean) {

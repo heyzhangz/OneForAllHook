@@ -1,6 +1,6 @@
 import {cameraReleatedHook, locationReleatedHook, audioReleatedHook, life_cycle_hook, permission_request_hook, ad_hook, test_func, mircophoneReleatedHook, contactReleatedHook, smsReleatedHook} from './scenario'
 
-Java.perform(function() {
+Java.performNow(function() {
 	if(Java.available) {
 		console.log('[+] JVM load success');
     locationReleatedHook(true, false);

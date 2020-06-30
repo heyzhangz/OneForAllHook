@@ -131,6 +131,7 @@ class CallerHook:
             self.script.on('message', self.on_message)
             print('[*] Running App')
             self.script.load()
+            time.sleep(8)
             # resume()一定要放在后面，不然hook不到onCreate
             device.resume(pid)
 
@@ -151,8 +152,8 @@ class CallerHook:
 if __name__ == "__main__":
     package_name = sys.argv[1]
     ch = CallerHook(package_name, os.path.join('log'))
-    ch.start_hook(os.path.join('_agent.js'))
-    # ch.run_and_start_hook(os.path.join('_agent.js'))
+    # ch.start_hook(os.path.join('_agent.js'))
+    ch.run_and_start_hook(os.path.join('_agent.js'))
     sys.stdin.read()
     ch.stop_hook()
 
