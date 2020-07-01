@@ -8,7 +8,12 @@ export namespace hooking {
             if (typeof(clazz_instance) == 'string') {
                 clazz_instance = Java.use(clazz_instance);
             }
-            let method_names: string[] = clazz_instance.class.getDeclaredMethods().map((method : any) => {
+            let method_names: string[] = clazz_instance.class.getDeclaredMethods().filter(function(method : any) {
+                if (method.getName().indexOf("-") == 0) {
+                    return false;
+                }
+                return true;
+            }).map((method : any) => {
                 // let m: string = method.toGenericString();
                 // while (m.includes("<")) { m = m.replace(/<.*?>/g, ""); }
                 // if (m.indexOf(" throws ") !== -1) { m = m.substring(0, m.indexOf(" throws ")); }
